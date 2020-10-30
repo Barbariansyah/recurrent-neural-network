@@ -4,7 +4,7 @@ from abc import ABC
 from .common import relu, softmax, sigmoid
 from math import ceil
 
-__all__ = ['Layer', 'Dense']
+__all__ = ['Layer', 'SimpleRnn', 'Dense']
 
 
 class Layer(ABC):
