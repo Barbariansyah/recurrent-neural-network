@@ -8,9 +8,9 @@ from typing import List
 '''
 Forward Propagation Experiment
 | Experiment | Sequence Length | Input Size | Hidden Size | Output Size | Initial Weight |
-|      1     |         1       |     1      |      1      |      1      |        0       |
-|      2     |         3       |     3      |      3      |      3      |        1       |
-|      3     |         5       |     5      |      5      |      5      |      Random    |
+|      1     |         8       |     1      |      1      |      1      |        0       |
+|      2     |         16      |     1      |      3      |      1      |        1       |
+|      3     |         32      |     1      |      5      |      1      |      Random    |
 '''
 
 DATA_DIR = 'dataset/train_IBM.csv'
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     # Experiment 1
     init_weight_1 = np.full((1, 1), 0)
     simple_rnn_1 = SimpleRNN(
-        1, 1, [1, 1])
+        1, 1, [32, 1])
     simple_rnn_1.U = init_weight_1
     simple_rnn_1.V = init_weight_1
     simple_rnn_1.W = init_weight_1
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     rnn_1.add(Dense(1))
 
     rnn_1.feed_forward(train_dataset)
-    print(rnn_1)
+    print(simple_rnn_1)
 
     # Experiment 2
     init_weight_2 = np.full((3, 3), 1)
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     rnn_2.add(Dense(1))
 
     rnn_2.feed_forward(train_dataset)
-    print(rnn_2)
+    print(simple_rnn_2)
 
     # Experiment 3
     rnn_3 = MyRnn()
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     rnn_3.add(Dense(1))
 
     rnn_3.feed_forward(train_dataset)
-    print(rnn_3)
+    print(simple_rnn_3)
