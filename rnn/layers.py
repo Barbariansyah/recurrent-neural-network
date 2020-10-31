@@ -22,7 +22,6 @@ class SimpleRNN(Layer):
     '''
     def __init__(self, hidden_size: int, output_size: int, input_shape: np.array, U: np.array = None, W: np.array = None):
         self.hidden_size = hidden_size
-        self.output_size = output_size
         self.input_shape = input_shape
         self.U = U if np.array(U).any() else np.random.uniform(-np.sqrt(1. / input_shape[1]), -np.sqrt(1. / input_shape[1]), (hidden_size, input_shape[1]))
         self.W = W if np.array(W).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (hidden_size, hidden_size))
