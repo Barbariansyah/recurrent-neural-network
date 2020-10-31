@@ -16,3 +16,5 @@ def softmax(inp: List[np.array]) -> list:
 def sigmoid(x: float) -> float:
     return 1 / (1 + np.exp(-1*x))
 
+def linear(x: float) -> float:
+    return x

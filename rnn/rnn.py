@@ -1,6 +1,6 @@
 import numpy as np
-from .layers import *
-from .common import *
+from .layers import Layer
+from .common import relu, softmax, sigmoid
 from typing import List
 from math import ceil
 

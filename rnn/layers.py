@@ -24,9 +24,9 @@ class SimpleRNN(Layer):
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.input_shape = input_shape
-        self.U = U if U else np.random.uniform(-np.sqrt(1. / input_shape[1]), -np.sqrt(1. / input_shape[1]), (hidden_size, input_shape[1]))
-        self.W = W if W else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (hidden_size, hidden_size))
-        self.V = V if V else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (output_size, hidden_size))
+        self.U = U if np.array(U).any() else np.random.uniform(-np.sqrt(1. / input_shape[1]), -np.sqrt(1. / input_shape[1]), (hidden_size, input_shape[1]))
+        self.W = W if np.array(W).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (hidden_size, hidden_size))
+        self.V = V if np.array(V).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (output_size, hidden_size))
         self.bxh = np.full(hidden_size, 0.1)
         self.bhy = np.full(output_size, 0.1)
         self.h = [np.zeros(hidden_size) for _ in range(input_shape[0] + 1)]
@@ -46,7 +46,7 @@ class SimpleRNN(Layer):
 
 
     def calculate_output_shape(self, inp: List[tuple]):
-        return [self.input_shape[0], self.output_size]
+        return [(self.input_shape[0], self.output_size)]
 
     def __str__(self):
         for t in range(self.input_shape[0] + 1):
@@ -80,9 +80,12 @@ class Dense(Layer):
             result = [reluv(fm) for fm in conv_res]
         elif self.activation_function == 'softmax':
             result = softmax(conv_res)
-        else:
+        elif self.activation_function == 'sigmoid':
             sigmoidv = np.vectorize(sigmoid)
             result = [sigmoidv(fm) for fm in conv_res]
+        else:
+            linearv = np.vectorize(linear)
+            result = [linearv(fm) for fm in conv_res]
 
         return result
 
