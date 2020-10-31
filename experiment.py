@@ -79,24 +79,30 @@ if __name__ == "__main__":
     rnn_1.add(Dense(1))
 
     rnn_1.feed_forward(train_dataset)
+    print('Experiment 1')
     print(simple_rnn_1)
+    print('=====================')
 
     # Experiment 2
-    init_weight_2 = np.full((3, 3), 1)
+    init_weight_2 = np.full((1, 1), 1)
     simple_rnn_2 = SimpleRNN(
-        3, 3, [3, 3], init_weight_2, init_weight_2, init_weight_2)
+        1, 1, [32, 1], init_weight_2, init_weight_2, init_weight_2)
     rnn_2 = MyRnn()
     rnn_2.add(simple_rnn_2)
     rnn_2.add(Dense(1))
 
     rnn_2.feed_forward(train_dataset)
+    print('Experiment 2')
     print(simple_rnn_2)
+    print('=====================')
 
     # Experiment 3
     rnn_3 = MyRnn()
-    simple_rnn_3 = SimpleRNN(5, 5, [5, 5])
+    simple_rnn_3 = SimpleRNN(1, 1, [32, 1])
     rnn_3.add(simple_rnn_3)
     rnn_3.add(Dense(1))
 
     rnn_3.feed_forward(train_dataset)
+    print('Experiment 3')
     print(simple_rnn_3)
+    print('=====================')
