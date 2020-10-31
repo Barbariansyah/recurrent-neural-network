@@ -20,9 +20,10 @@ class SimpleRNN(Layer):
     output size = number of neuron in output layer
     input shape <x, y>, x = number of timestamp, y = input dimension
     '''
-    def __init__(self, hidden_size: int, output_size: int, input_shape: np.array, U: np.array = None, W: np.array = None):
+    def __init__(self, hidden_size: int, output_size: int, input_shape: np.array, return_sequence: bool = False, U: np.array = None, W: np.array = None):
         self.hidden_size = hidden_size
         self.input_shape = input_shape
+        self.return_sequence = return_sequence
         self.U = U if np.array(U).any() else np.random.uniform(-np.sqrt(1. / input_shape[1]), -np.sqrt(1. / input_shape[1]), (hidden_size, input_shape[1]))
         self.W = W if np.array(W).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (hidden_size, hidden_size))
         self.bxh = np.full(hidden_size, 0.1)
@@ -30,14 +31,19 @@ class SimpleRNN(Layer):
 
     
     def call(self, inp: List[np.array]) -> List[np.array]:
-        Uxt = np.dot(self.U, inp[0])
-        Wht_prev = np.dot(self.W, self.h[-1]) + self.bxh
-        ht = np.tanh(Uxt + Wht_prev)
-        self.h.append(ht)
-        return ht
+        for t in range(self.input_shape[0]):
+            Uxt = np.dot(self.U, inp[t])
+            Wht_prev = np.dot(self.W, self.h[-1]) + self.bxh
+            ht = np.tanh(Uxt + Wht_prev)
+            self.h.append(ht)
+        
+        if self.return_sequence:
+            return self.h
+        else:
+            return self.h[-1]
 
     def calculate_output_shape(self, inp: List[tuple]):
-        return [(self.hidden_size,)]
+        return [(self.input_shape[0], self.hidden_size)] if self.return_sequence else [(self.hidden_size,)]
 
     def __str__(self):
         res = ''
