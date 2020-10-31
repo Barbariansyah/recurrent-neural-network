@@ -20,40 +20,31 @@ class SimpleRNN(Layer):
     output size = number of neuron in output layer
     input shape <x, y>, x = number of timestamp, y = input dimension
     '''
-    def __init__(self, hidden_size: int, output_size: int, input_shape: np.array, U: np.array = None, W: np.array = None, V: np.array = None):
+    def __init__(self, hidden_size: int, output_size: int, input_shape: np.array, U: np.array = None, W: np.array = None):
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.input_shape = input_shape
         self.U = U if np.array(U).any() else np.random.uniform(-np.sqrt(1. / input_shape[1]), -np.sqrt(1. / input_shape[1]), (hidden_size, input_shape[1]))
         self.W = W if np.array(W).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (hidden_size, hidden_size))
-        self.V = V if np.array(V).any() else np.random.uniform(-np.sqrt(1. / hidden_size), -np.sqrt(1. / hidden_size), (output_size, hidden_size))
         self.bxh = np.full(hidden_size, 0.1)
-        self.bhy = np.full(output_size, 0.1)
-        self.h = [np.zeros(hidden_size) for _ in range(input_shape[0] + 1)]
-        self.out = [np.zeros(output_size) for _ in range(input_shape[0]  + 1)]
+        self.h = [np.zeros(hidden_size)]
 
     
     def call(self, inp: List[np.array]) -> List[np.array]:
-        for t, xt in enumerate(inp):
-            Uxt = np.dot(self.U, xt)
-            Wht_prev = np.dot(self.W, self.h[t]) + self.bxh
-            ht = np.tanh(Uxt + Wht_prev)
-            self.h[t+1] = ht
-
-            Vht = np.dot(self.V, ht) + self.bhy
-            yt = softmax(Vht)
-            self.out[t+1] = yt
-
+        Uxt = np.dot(self.U, inp[0])
+        Wht_prev = np.dot(self.W, self.h[-1]) + self.bxh
+        ht = np.tanh(Uxt + Wht_prev)
+        self.h.append(ht)
+        return ht
 
     def calculate_output_shape(self, inp: List[tuple]):
-        return [(self.input_shape[0], self.output_size)]
+        return [(self.hidden_size,)]
 
     def __str__(self):
-        for t in range(self.input_shape[0] + 1):
-            print("t = {}".format(t))
-            print(self.h[t])
-            print(self.out[t])
-    
+        res = ''
+        for t, ht in enumerate(self.h):
+            res += "t = {} ht = {} \n".format(t, ht)
+        return res
 
 class Dense(Layer):
     def __init__(self, unit_count: int, activation_function: str = 'relu'):
