@@ -48,6 +48,21 @@ def convert_to_matrix(data, step):
     return np.array(X), np.array(Y)
 
 
+def predict_sequence(model, initial_data, seq_length):
+    final_result = []
+    dataset = np.copy(initial_data)
+    for i in range(seq_length):
+        formatted_dataset = convert_to_matrix(dataset, STEP)
+        test_x = formatted_dataset[0]
+        test_x = np.reshape(test_x, (test_x.shape[0], 1, test_x.shape[1]))
+        result = model.predict(test_x)
+        final_result.append(result[0][0])
+        dataset = np.append(dataset, result[0][0])
+        dataset = dataset[1:]
+
+    return final_result
+
+
 if __name__ == "__main__":
 
     # Load train and test data
@@ -72,7 +87,6 @@ if __name__ == "__main__":
     simple_rnn_1 = SimpleRNN(
         1, 1, [32, 1])
     simple_rnn_1.U = init_weight_1
-    simple_rnn_1.V = init_weight_1
     simple_rnn_1.W = init_weight_1
     rnn_1 = MyRnn()
     rnn_1.add(simple_rnn_1)
@@ -86,7 +100,7 @@ if __name__ == "__main__":
     # Experiment 2
     init_weight_2 = np.full((1, 1), 1)
     simple_rnn_2 = SimpleRNN(
-        1, 1, [32, 1], init_weight_2, init_weight_2, init_weight_2)
+        1, 1, [32, 1], init_weight_2, init_weight_2)
     rnn_2 = MyRnn()
     rnn_2.add(simple_rnn_2)
     rnn_2.add(Dense(1))
