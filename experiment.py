@@ -2,9 +2,9 @@ from rnn.layers import SimpleRNN, Dense
 from rnn.rnn import MyRnn
 import numpy as np
 import pandas as pd
-from keras import backend as K
 from sklearn.preprocessing import MinMaxScaler
 from typing import List
+import math
 
 '''
 Forward Propagation Experiment
@@ -62,14 +62,14 @@ def convert_to_matrix(data, step):
     return np.array(X), np.array(Y)
 
 
-def predict_sequence(model, initial_data, seq_length):
+def predict_sequence(model, initial_data, seq_length, step):
     final_result = []
     dataset = np.copy(initial_data)
     for i in range(seq_length):
-        formatted_dataset = convert_to_matrix(dataset, STEP)
+        formatted_dataset = convert_to_matrix(dataset, step)
         test_x = formatted_dataset[0]
         test_x = np.reshape(test_x, (test_x.shape[0], 1, test_x.shape[1]))
-        result = model.predict(test_x)
+        result = model.feed_forward(test_x)
         final_result.append(result[0][0])
         dataset = np.append(dataset, result[0][0])
         dataset = dataset[1:]
@@ -78,7 +78,7 @@ def predict_sequence(model, initial_data, seq_length):
 
 
 def root_mean_squared_error(y_true, y_pred):
-    return K.sqrt(K.mean(K.square(y_pred - y_true)))
+    return math.sqrt(np.mean(pow((y_pred - y_true), 2)))
 
 
 if __name__ == "__main__":
@@ -131,6 +131,11 @@ if __name__ == "__main__":
     print(simple_rnn_1)
     print(dense_1)
     print('Output Model : {} \n'.format(ff_result_1))
+
+
+    predict_result = predict_sequence(rnn_1, train_dataset[-51:], test_dataset.shape[0], 1)
+    rmse_result = root_mean_squared_error(test_dataset, predict_result)
+    print('RMSE Experiment 1 : {} \n'.format(rmse_result))
     print('=====================')
 
     # Experiment 2
@@ -171,6 +176,10 @@ if __name__ == "__main__":
     print(simple_rnn_2)
     print(dense_2)
     print('Output Model : {} \n'.format(ff_result_2))
+
+    predict_result = predict_sequence(rnn_2, train_dataset[-51:], test_dataset.shape[0], 1)
+    rmse_result = root_mean_squared_error(test_dataset, predict_result)
+    print('RMSE Experiment 2 : {} \n'.format(rmse_result))
     print('=====================')
 
     # Experiment 3
@@ -208,4 +217,8 @@ if __name__ == "__main__":
     print(simple_rnn_3)
     print(dense_3)
     print('Output Model : {} \n'.format(ff_result_3))
+
+    predict_result = predict_sequence(rnn_3, train_dataset[-51:], test_dataset.shape[0], 1)
+    rmse_result = root_mean_squared_error(test_dataset, predict_result)
+    print('RMSE Experiment 3 : {} \n'.format(rmse_result))
     print('=====================')
