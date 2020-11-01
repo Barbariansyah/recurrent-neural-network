@@ -2,18 +2,20 @@ from rnn.layers import SimpleRNN, Dense
 from rnn.rnn import MyRnn
 import numpy as np
 import pandas as pd
+from keras import backend as K
 from sklearn.preprocessing import MinMaxScaler
 from typing import List
 
 '''
 Forward Propagation Experiment
 | Experiment | Sequence Length | Input Size | Hidden Size | Output Size | Initial Weight |
-|      1     |         8       |     1      |      1      |      1      |        0       |
-|      2     |         16      |     1      |      3      |      1      |        1       |
-|      3     |         32      |     1      |      5      |      1      |      Random    |
+|      1     |         1       |     1      |      1      |      1      |        0       |
+|      2     |         2       |     1      |      3      |      1      |        1       |
+|      3     |         4       |     1      |      5      |      1      |      Random    |
 '''
 
 DATA_DIR = 'dataset/train_IBM.csv'
+SCALER = MinMaxScaler(feature_range=(0, 1))
 
 
 def load_dataset() -> List[np.array]:
@@ -27,9 +29,21 @@ def load_dataset() -> List[np.array]:
 
 def scale_data(dataset):
     dataset = np.reshape(dataset, (-1, 1))
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(dataset)
 
+    dataset = SCALER.fit_transform(dataset)
+    temp_dataset = np.array([])
+    for i in dataset:
+        temp_dataset = np.append(temp_dataset, i[0])
+
+    dataset = temp_dataset
+
+    return dataset
+
+
+def scale_data_inverse(dataset):
+    dataset = np.reshape(dataset, (-1, 1))
+
+    dataset = SCALER.inverse_transform(dataset)
     temp_dataset = np.array([])
     for i in dataset:
         temp_dataset = np.append(temp_dataset, i[0])
@@ -63,60 +77,135 @@ def predict_sequence(model, initial_data, seq_length):
     return final_result
 
 
+def root_mean_squared_error(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true)))
+
+
 if __name__ == "__main__":
 
     # Load train and test data
     train_dataset, test_dataset = load_dataset()
-    # Preprocess train data
+
+    # General preprocess
     train_dataset = scale_data(train_dataset)
 
-    # train_dataset = np.array(train_dataset)
-    # test_dataset = np.array(test_dataset)
-
-    # test_dataset = np.append(test_dataset, np.repeat(test_dataset[-1, ], 1))
-    # train_dataset = np.append(train_dataset, np.repeat(train_dataset[-1, ], 1))
-
-    # train_x, train_y = convert_to_matrix(train_dataset, 1)
-    # test_x, test_y = convert_to_matrix(test_dataset, 1)
-
-    # train_x = np.reshape(train_x, (train_x.shape[0], 1, train_x.shape[1]))
-    # test_x = np.reshape(test_x, (test_x.shape[0], 1, test_x.shape[1]))
+    train_dataset = np.array(train_dataset)
+    test_dataset = np.array(test_dataset)
 
     # Experiment 1
-    init_weight_1 = np.full((1, 1), 0)
-    simple_rnn_1 = SimpleRNN(
-        1, 1, [32, 1])
-    simple_rnn_1.U = init_weight_1
-    simple_rnn_1.W = init_weight_1
-    rnn_1 = MyRnn()
-    rnn_1.add(simple_rnn_1)
-    rnn_1.add(Dense(1))
+    SEQ_LENGTH_1 = 1
+    INPUT_SIZE_1 = 1
+    OUTPUT_SIZE_1 = 1
+    HIDDEN_SIZE_1 = 1
+    INIT_WEIGHT_1 = np.full((1, 1), 0)
+    RETURN_SEQUENCES_1 = False
 
-    rnn_1.feed_forward(train_dataset)
+    # Preprocess data for experiment 1
+    train_dataset_1 = np.append(train_dataset, np.repeat(
+        train_dataset[-1, ], SEQ_LENGTH_1))
+    test_dataset_1 = np.append(test_dataset, np.repeat(
+        test_dataset[-1, ], SEQ_LENGTH_1))
+
+    train_x_1, train_y_1 = convert_to_matrix(train_dataset_1, SEQ_LENGTH_1)
+    test_x_1, test_y_1 = convert_to_matrix(test_dataset_1, SEQ_LENGTH_1)
+
+    train_x_1 = np.reshape(
+        train_x_1, (train_x_1.shape[0], 1, train_x_1.shape[1]))
+    test_x_1 = np.reshape(test_x_1, (test_x_1.shape[0], 1, test_x_1.shape[1]))
+
+    # Create model for experiment 1
+    simple_rnn_1 = SimpleRNN(
+        HIDDEN_SIZE_1, [SEQ_LENGTH_1, INPUT_SIZE_1], RETURN_SEQUENCES_1)
+    simple_rnn_1.U = INIT_WEIGHT_1
+    simple_rnn_1.W = INIT_WEIGHT_1
+    rnn_1 = MyRnn()
+    dense_1 = Dense(OUTPUT_SIZE_1)
+    rnn_1.add(simple_rnn_1)
+    rnn_1.add(dense_1)
+
+    for data in train_x_1:
+        ff_result_1, _ = rnn_1.feed_forward(data[0])
+    ff_result_1 = scale_data_inverse(ff_result_1[0])
+
     print('Experiment 1')
     print(simple_rnn_1)
+    print(dense_1)
+    print('Output Model : {} \n'.format(ff_result_1))
     print('=====================')
 
     # Experiment 2
-    init_weight_2 = np.full((1, 1), 1)
-    simple_rnn_2 = SimpleRNN(
-        1, 1, [32, 1], init_weight_2, init_weight_2)
-    rnn_2 = MyRnn()
-    rnn_2.add(simple_rnn_2)
-    rnn_2.add(Dense(1))
+    SEQ_LENGTH_2 = 2
+    INPUT_SIZE_2 = 1
+    OUTPUT_SIZE_2 = 1
+    HIDDEN_SIZE_2 = 3
+    INIT_U_WEIGHT_2 = np.full((HIDDEN_SIZE_2, SEQ_LENGTH_2), 1)
+    INIT_W_WEIGHT_2 = np.full((HIDDEN_SIZE_2, HIDDEN_SIZE_2), 1)
+    RETURN_SEQUENCES_2 = False
 
-    rnn_2.feed_forward(train_dataset)
+    # Preprocess data for experiment 2
+    train_dataset_2 = np.append(train_dataset, np.repeat(
+        train_dataset[-1, ], SEQ_LENGTH_2))
+    test_dataset_2 = np.append(test_dataset, np.repeat(
+        test_dataset[-1, ], SEQ_LENGTH_2))
+
+    train_x_2, train_y_2 = convert_to_matrix(train_dataset_2, SEQ_LENGTH_2)
+    test_x_2, test_y_2 = convert_to_matrix(test_dataset_2, SEQ_LENGTH_2)
+
+    train_x_2 = np.reshape(
+        train_x_2, (train_x_2.shape[0], 1, train_x_2.shape[1]))
+    test_x_2 = np.reshape(test_x_2, (test_x_2.shape[0], 1, test_x_2.shape[1]))
+
+    # Create model for experiment 2
+    simple_rnn_2 = SimpleRNN(
+        HIDDEN_SIZE_2, [SEQ_LENGTH_2, INPUT_SIZE_2], RETURN_SEQUENCES_2, U=INIT_U_WEIGHT_2, W=INIT_W_WEIGHT_2)
+    rnn_2 = MyRnn()
+    dense_2 = Dense(OUTPUT_SIZE_2)
+    rnn_2.add(simple_rnn_2)
+    rnn_2.add(dense_2)
+
+    for data in train_x_2:
+        ff_result_2 = rnn_2.feed_forward(data)
+    ff_result_2 = scale_data_inverse(ff_result_2[0])
+
     print('Experiment 2')
     print(simple_rnn_2)
+    print(dense_2)
+    print('Output Model : {} \n'.format(ff_result_2))
     print('=====================')
 
     # Experiment 3
-    rnn_3 = MyRnn()
-    simple_rnn_3 = SimpleRNN(1, 1, [32, 1])
-    rnn_3.add(simple_rnn_3)
-    rnn_3.add(Dense(1))
+    SEQ_LENGTH_3 = 4
+    INPUT_SIZE_3 = 1
+    OUTPUT_SIZE_3 = 1
+    HIDDEN_SIZE_3 = 5
+    RETURN_SEQUENCES_3 = False
 
-    rnn_3.feed_forward(train_dataset)
+    # Preprocess data for experiment 2
+    train_dataset_3 = np.append(train_dataset, np.repeat(
+        train_dataset[-1, ], SEQ_LENGTH_3))
+    test_dataset_3 = np.append(test_dataset, np.repeat(
+        test_dataset[-1, ], SEQ_LENGTH_3))
+
+    train_x_3, train_y_3 = convert_to_matrix(train_dataset_3, SEQ_LENGTH_3)
+    test_x_3, test_y_3 = convert_to_matrix(test_dataset_3, SEQ_LENGTH_3)
+
+    train_x_3 = np.reshape(
+        train_x_3, (train_x_3.shape[0], 1, train_x_3.shape[1]))
+    test_x_3 = np.reshape(test_x_3, (test_x_3.shape[0], 1, test_x_3.shape[1]))
+
+    # Create model for experiment 3
+    rnn_3 = MyRnn()
+    dense_3 = Dense(OUTPUT_SIZE_3)
+    simple_rnn_3 = SimpleRNN(HIDDEN_SIZE_3, [SEQ_LENGTH_3, INPUT_SIZE_3])
+    rnn_3.add(simple_rnn_3)
+    rnn_3.add(dense_3)
+
+    for data in train_x_3:
+        ff_result_3 = rnn_3.feed_forward(data)
+    ff_result_3 = scale_data_inverse(ff_result_3[0])
+
     print('Experiment 3')
     print(simple_rnn_3)
+    print(dense_3)
+    print('Output Model : {} \n'.format(ff_result_3))
     print('=====================')
