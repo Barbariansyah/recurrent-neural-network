@@ -128,8 +128,7 @@ if __name__ == "__main__":
     ff_result_1 = scale_data_inverse(ff_result_1[0])
 
     print('Experiment 1')
-    print(simple_rnn_1)
-    print(dense_1)
+    print(rnn_1)
     print('Output Model : {} \n'.format(ff_result_1))
 
 
@@ -173,8 +172,7 @@ if __name__ == "__main__":
     ff_result_2 = scale_data_inverse(ff_result_2[0])
 
     print('Experiment 2')
-    print(simple_rnn_2)
-    print(dense_2)
+    print(rnn_2)
     print('Output Model : {} \n'.format(ff_result_2))
 
     predict_result = predict_sequence(rnn_2, train_dataset[-51:], test_dataset.shape[0], 1)
@@ -214,8 +212,7 @@ if __name__ == "__main__":
     ff_result_3 = scale_data_inverse(ff_result_3[0])
 
     print('Experiment 3')
-    print(simple_rnn_3)
-    print(dense_3)
+    print(rnn_3)
     print('Output Model : {} \n'.format(ff_result_3))
 
     predict_result = predict_sequence(rnn_3, train_dataset[-51:], test_dataset.shape[0], 1)

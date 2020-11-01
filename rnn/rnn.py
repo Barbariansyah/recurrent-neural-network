@@ -12,10 +12,14 @@ class MyRnn(object):
         return None
 
     def __str__(self):
-        pass
+        str_rep = ''
+        for layer in self.layers:
+            str_rep += str(layer)
+        
+        return str_rep
 
     def add(self, layer: Layer):
-        init_weight = getattr(layer, "init_weight", None)
+        init_weight = getattr(layer, 'init_weight', None)
 
         if len(self.layers):
             if callable(init_weight):
