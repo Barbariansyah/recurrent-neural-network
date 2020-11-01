@@ -143,7 +143,7 @@ if __name__ == "__main__":
     INPUT_SIZE_2 = 1
     OUTPUT_SIZE_2 = 1
     HIDDEN_SIZE_2 = 3
-    INIT_U_WEIGHT_2 = np.full((HIDDEN_SIZE_2, SEQ_LENGTH_2), 1)
+    INIT_U_WEIGHT_2 = np.full((HIDDEN_SIZE_2, INPUT_SIZE_2), 1)
     INIT_W_WEIGHT_2 = np.full((HIDDEN_SIZE_2, HIDDEN_SIZE_2), 1)
     RETURN_SEQUENCES_2 = False
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     rnn_2.add(dense_2)
 
     for data in train_x_2:
-        ff_result_2 = rnn_2.feed_forward(data)
+        ff_result_2 = rnn_2.feed_forward(data[0])
     ff_result_2 = scale_data_inverse(ff_result_2[0])
 
     print('Experiment 2')
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     rnn_3.add(dense_3)
 
     for data in train_x_3:
-        ff_result_3 = rnn_3.feed_forward(data)
+        ff_result_3 = rnn_3.feed_forward(data[0])
     ff_result_3 = scale_data_inverse(ff_result_3[0])
 
     print('Experiment 3')
